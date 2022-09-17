@@ -1,0 +1,55 @@
+-- To display timetable of a lecturer with initial 'COP' for a monday 
+SELECT sem as SEM, section as SECTION, room_no as ROOM_NO, pno as PERIOD, start_time as START_TIME, end_time as END_TIME 
+FROM assign_to 
+WHERE initials = 'COP' AND assign_to.day = 'Monday';
+
+-- To find where the lecturer with initial 'Dr.NKS' is present currently
+SELECT room_no, sem, section 
+FROM assign_to 
+WHERE initials='Dr.NKS' AND start_time='08:15:00' AND end_time='09:15:00' AND day='Monday';
+
+-- To find vacant classes
+SELECT room_no 
+FROM sem_class 
+WHERE room_no NOT IN (SELECT room_no 
+                      FROM assign_to 
+					  WHERE start_time='14:30:00' AND end_time='15:30:00' AND day='Monday');
+-- To calculate workload of each lecturer
+SELECT initials,COUNT(*) 
+FROM assign_to 
+GROUP BY initials;
+
+-- To calculate workload for a single lecturer
+SELECT COUNT(*) 
+FROM assign_to 
+WHERE initials='SVI';
+
+-- To display the name and number of days a lecturer took holidays
+SELECT name,days_off 
+FROM Holiday
+WHERE days_off = (SELECT Max(days_off) FROM Holiday)
+
+-- To display periods when lecturers are free
+
+(SELECT PNo,day,Start_time,End_time
+FROM timetable)
+EXCEPT
+(SELECT PNo,day,Start_time,End_time
+FROM assign_to
+WHERE initials='CGM');
+
+-- display all the detalis of a particular subject
+SELECT *
+FROM ((course AS c JOIN lecturer AS l ON l.C_Code=c.C_Code) JOIN assign_to AS a ON l.C_Code=a.C_Code)
+WHERE l.C_Code='UE18MA251'
+
+--count total number of lecturers
+SELECT COUNT(*) AS total_number_of_lecturers
+FROM lecturer
+
+--to display timetable for a lecturer for whole week
+SELECT *
+FROM timetable
+where EXISTS(SELECT pno,day
+             FROM assign_to
+             WHERE initials='VRB');
